@@ -1,4 +1,4 @@
 //Test File
 let generate = require('./person.js');
 
-generate.addData("Steve", "Smith", 20);
+generate.generateDataSync(100);

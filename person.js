@@ -65,12 +65,44 @@ let Person = function(firstName, lastName, age){
             }
             fileData = JSON.stringify(fileData, null, " ");
             fs.writeFileSync("database.json", fileData);
-        }
+        };
+
+        this.writeData = function(){
+            this.person = {
+                firstName : this.firstName,
+                lastName : this.lastName,
+                age : this.age,
+                id : global.counter
+            }
+            let flag = false;
+            let fileData = fs.readFile("database.json", (err, data)=>{
+                data.toString();
+                data = JSON.parse(data);
+                for(i = 0; i < data.people.length; i ++){
+                    if(data.people[i].id === this.person.id){
+                        flag = true;
+                    }
+                    console.log(data.people[i]);
+                }
+                if(flag === true){
+                    console.log("Sorry, entry already exists");
+                }else if(flag === false){
+                    data.people.push(this.person);
+                    data = JSON.stringify(data, null, " ");
+                    fs.writeFile("database.json", data, (err)=>{
+                        console.log("written to database async");
+                    });
+                }
+            });
+
+
+        };
     }
 }
 
 
-let generateData = function(amount){
+
+let generateDataSync = function(amount){
     if(typeof amount === "number"){
     for(let i = 0; i < amount; i++){
         fIndex = Math.floor(Math.random() * Math.floor(firstNames.length));
@@ -82,7 +114,34 @@ let generateData = function(amount){
 }else{
     console.log(`Your data is not valid`);
 }
+};
+
+async function generateData(amount){
+    if(typeof amount === "number"){
+    let array = [];
+    array.length = amount-1;
+    array.forEach((item, index)=> {
+        fIndex = Math.floor(Math.random() * Math.floor(firstNames.length));
+        lIndex = Math.floor(Math.random() * Math.floor(lastNames.length));
+        age = Math.floor(Math.random() * Math.floor(100));
+        let person = new Person(firstNames[fIndex], lastNames[lIndex], age);
+        person.writeData();
+    })
+
+
+//     for(let i = 0; i < amount; i++){
+//         fIndex = Math.floor(Math.random() * Math.floor(firstNames.length));
+//         lIndex = Math.floor(Math.random() * Math.floor(lastNames.length));
+//         age = Math.floor(Math.random() * Math.floor(100));
+//         let person = new Person(firstNames[fIndex], lastNames[lIndex], age);
+//         person.writeData();
+//     }
+}else{
+    console.log(`Your data is not valid`);
 }
+};
+
+
 
 let addData = function(firstName, lastName, age, cb){
     if(typeof firstName === "string" && 
@@ -94,4 +153,4 @@ let addData = function(firstName, lastName, age, cb){
     }
 }
 
-module.exports = {generateData, addData};
+module.exports = {generateData, generateDataSync, addData};
